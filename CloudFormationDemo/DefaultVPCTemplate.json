@@ -1,0 +1,99 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Default VPC replacement",
+  "Resources": {
+    "InfraVPC": {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsHostnames": "true",
+        "Tags": [{"Key": "Name", "Value": {"Fn::Join": ["",[{"Ref": "AWS::StackName"}, " resource"]]}}]
+      }
+    },
+    "InfraInetGW": {
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [{"Key": "Name", "Value": {"Fn::Join": ["",[{"Ref": "AWS::StackName"}, " resource"]]}}]
+      }
+    },
+    "InfraVPCGWAttachment": {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+        "InternetGatewayId": {"Ref": "InfraInetGW"},
+        "VpcId": {"Ref": "InfraVPC"}
+      }
+    },
+    "InfraRouteTable": {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId": {"Ref": "InfraVPC"},
+        "Tags": [{"Key": "Name", "Value": {"Fn::Join": ["",[{"Ref": "AWS::StackName"}, " resource"]]}}]
+      }
+    },
+    "InfraInternetRoute": {
+      "Type" : "AWS::EC2::Route",
+      "Properties" : {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {"Ref": "InfraInetGW"},
+        "RouteTableId": {"Ref": "InfraRouteTable"}
+      }
+    },
+    "InfraSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone": "us-east-1a",
+        "CidrBlock": "10.0.0.0/20",
+        "MapPublicIpOnLaunch": "true",
+        "VpcId": {"Ref": "InfraVPC"},
+        "Tags": [{"Key": "Name", "Value": {"Fn::Join": ["",[{"Ref": "AWS::StackName"}, " resource"]]}}]
+      }
+    },
+    "InfraSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone": "us-east-1b",
+        "CidrBlock": "10.0.16.0/20",
+        "MapPublicIpOnLaunch": "true",
+        "VpcId": {"Ref": "InfraVPC"},
+        "Tags": [{"Key": "Name", "Value": {"Fn::Join": ["",[{"Ref": "AWS::StackName"}, " resource"]]}}]
+      }
+    },
+    "InfraSubnetC": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone": "us-east-1c",
+        "CidrBlock": "10.0.32.0/20",
+        "MapPublicIpOnLaunch": "true",
+        "VpcId": {"Ref": "InfraVPC"},
+        "Tags": [{"Key": "Name", "Value": {"Fn::Join": ["",[{"Ref": "AWS::StackName"}, " resource"]]}}]
+      }
+    },
+    "InfraSubnetARouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "InfraSubnetA" },
+        "RouteTableId" : { "Ref" : "InfraRouteTable" }
+      }
+    },
+    "InfraSubnetBRouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "InfraSubnetB" },
+        "RouteTableId" : { "Ref" : "InfraRouteTable" }
+      }
+    },
+    "InfraSubnetCRouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "InfraSubnetC" },
+        "RouteTableId" : { "Ref" : "InfraRouteTable" }
+      }
+    }
+  },
+  "Outputs": {
+    "VpcID": {
+      "Description": "The ID of the created VPC",
+      "Value": {"Ref": "InfraVPC"}
+    }
+  }
+}
