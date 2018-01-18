@@ -1,5 +1,12 @@
 package com.rami.controller;
 
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.util.EC2MetadataUtils;
+import com.rami.model.AmazonHostDetails;
 import com.rami.model.HostDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * Created by Rami Stefanidis on 1/15/2018.
@@ -38,6 +46,38 @@ public class HostDetailsController {
         // Remote address
         LOG.info("hostDetails={}",hostDetails);
         return  new ResponseEntity(hostDetails, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/amazondetails" , method = RequestMethod.GET)
+    ResponseEntity<AmazonHostDetails> getAmazonHostDetails() throws UnknownHostException {
+        LOG.info("getHostDetails() invoked");
+        final AmazonHostDetails amazonHostDetails = getDetails();
+        return  new ResponseEntity(amazonHostDetails, HttpStatus.OK);
+    }
+
+    private AmazonHostDetails getDetails(){
+        final AmazonHostDetails amazonHostDetails = new AmazonHostDetails();
+
+        String instanceId = EC2MetadataUtils.getInstanceId();
+
+        String privateAddress = EC2MetadataUtils.getInstanceInfo().getPrivateIp();
+
+        AmazonEC2 client = AmazonEC2ClientBuilder.defaultClient();
+        String publicAddress = client.describeInstances(new DescribeInstancesRequest()
+                .withInstanceIds(instanceId))
+                .getReservations()
+                .stream()
+                .map(Reservation::getInstances)
+                .flatMap(List::stream)
+                .findFirst()
+                .map(Instance::getPublicIpAddress)
+                .orElse(null);
+
+        amazonHostDetails.setInstanceId(instanceId);
+        amazonHostDetails.setPrivateAddress(privateAddress);
+        amazonHostDetails.setPublicAddress(publicAddress);
+
+        return amazonHostDetails;
     }
 
     @RequestMapping(value = "/" , method = RequestMethod.GET)
