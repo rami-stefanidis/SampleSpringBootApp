@@ -39,4 +39,11 @@ public class HostDetailsController {
         LOG.info("hostDetails={}",hostDetails);
         return  new ResponseEntity(hostDetails, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/" , method = RequestMethod.GET)
+    ResponseEntity healthCheck() throws UnknownHostException {
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 }
