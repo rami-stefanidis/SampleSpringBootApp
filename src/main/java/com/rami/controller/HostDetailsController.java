@@ -1,12 +1,6 @@
 package com.rami.controller;
 
-import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
-import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
-import com.amazonaws.services.ec2.model.Instance;
-import com.amazonaws.services.ec2.model.Reservation;
-import com.amazonaws.util.EC2MetadataUtils;
-import com.rami.model.AmazonHostDetails;
+
 import com.rami.model.HostDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 
 /**
  * Created by Rami Stefanidis on 1/15/2018.
