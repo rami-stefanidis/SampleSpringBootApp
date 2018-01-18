@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -33,13 +34,17 @@ public class HostDetailsController {
         LOG.info("getHostDetails() invoked");
         InetAddress ip;
         String hostname;
-        ip = InetAddress.getLocalHost();
+
+/*        ip = InetAddress.getLocalHost();
         hostname = ip.getHostName();
         final HostDetails hostDetails = new HostDetails();
         hostDetails.setHostname(hostname);
-        hostDetails.setIp(ip.toString());
-        System.out.println("Your current IP address : " + ip);
-        System.out.println("Your current Hostname : " + hostname);
+        hostDetails.setIp(ip.toString());*/
+        final RestTemplate restTemplate = new RestTemplate();
+        String instanceId = restTemplate.getForObject("http://169.254.169.254/latest/meta-data/instance-id", String.class);
+        final HostDetails hostDetails = new HostDetails();
+        hostDetails.setHostname(instanceId);
+
 
         //final String response = "Hostname = "+hostname + "  ip="+ ip.toString();
 
@@ -48,14 +53,14 @@ public class HostDetailsController {
         return  new ResponseEntity(hostDetails, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/amazondetails" , method = RequestMethod.GET)
+/*    @RequestMapping(value = "/amazondetails" , method = RequestMethod.GET)
     ResponseEntity<AmazonHostDetails> getAmazonHostDetails() throws UnknownHostException {
         LOG.info("getHostDetails() invoked");
         final AmazonHostDetails amazonHostDetails = getDetails();
         return  new ResponseEntity(amazonHostDetails, HttpStatus.OK);
-    }
+    }*/
 
-    private AmazonHostDetails getDetails(){
+/*    private AmazonHostDetails getDetails(){
         final AmazonHostDetails amazonHostDetails = new AmazonHostDetails();
 
         String instanceId = EC2MetadataUtils.getInstanceId();
@@ -78,7 +83,7 @@ public class HostDetailsController {
         amazonHostDetails.setPublicAddress(publicAddress);
 
         return amazonHostDetails;
-    }
+    }*/
 
     @RequestMapping(value = "/" , method = RequestMethod.GET)
     ResponseEntity healthCheck() throws UnknownHostException {
